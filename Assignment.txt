@@ -2,7 +2,6 @@ rm(list=ls())
 
 set.seed(0602)
 
-library(caret)
 library(readr)
 library(randomForest)
 
@@ -33,9 +32,9 @@ rforest = randomForest(train.numeric, labels, ntree = 250, mtry=11,
                        importance = TRUE, keep.forest = TRUE, do.trace = 25
                        )
 
-preds = predict(rforest, df_test, type = "prob")
+preds = predict(rforest, newdata=test.numeric, type = "prob")
 
 rf.pred = apply(preds, 1, max)
 
 sample_submission[,2] <- rf.pred
-write_csv(sample_submission, "rforest1.csv")
+write.csv(sample_submission, "rforest1.csv")
