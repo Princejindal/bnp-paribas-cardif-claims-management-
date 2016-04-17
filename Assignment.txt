@@ -1,0 +1,41 @@
+rm(list=ls())
+
+set.seed(0602)
+
+library(caret)
+library(readr)
+library(randomForest)
+
+#Change dir to file location
+train = read.csv("train.csv")
+
+test = read.csv("test.csv")
+
+sample_submission = read.csv("sample_submission.csv")
+
+labels = as.factor(train$target)
+
+train = train[, -2]
+
+train$missVal = rowSums(is.na(train))
+test$missVal = rowSums(is.na(test))
+
+train.numeric = train[, sapply(train, is.numeric)]
+test.numeric = test[, sapply(test, is.numeric)]
+
+#randomForest cann't take na values
+train.numeric = na.roughfix(train.numeric)
+test.numeric = na.roughfix(test.numeric)
+
+
+rforest = randomForest(train.numeric, labels, ntree = 250, mtry=11, 
+                       classwt=table(labels), sampsize = c(25000), nodesize = 1,
+                       importance = TRUE, keep.forest = TRUE, do.trace = 25
+                       )
+
+preds = predict(rforest, df_test, type = "prob")
+
+rf.pred = apply(preds, 1, max)
+
+sample_submission[,2] <- rf.pred
+write_csv(sample_submission, "rforest1.csv")
